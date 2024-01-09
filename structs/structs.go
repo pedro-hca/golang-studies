@@ -2,62 +2,34 @@ package main
 
 import (
 	"fmt"
-	"time"
+
+	"example.com/structs/user"
 )
-
-type user struct {
-	firstName string
-	lastName  string
-	birthdate string
-	createdAt time.Time
-}
-
-func newUser(firstName, lastName, birthdate string) *user {
-	return &user{
-		firstName: firstName,
-		lastName:  lastName,
-		birthdate: birthdate,
-		createdAt: time.Now(),
-	}
-}
 
 func main() {
 
 	// appUser.firstName = getUserData("Please enter your first name: ")
 	// appUser.lastName = getUserData("Please enter your last name: ")
 	// appUser.birthdate = getUserData("Please enter your first birthdate (MM/DD/YYYY): ")
-	UserfirstName := getUserData("Please enter your first name: ")
-	UserlastName := getUserData("Please enter your last name: ")
-	Userbirthdate := getUserData("Please enter your first birthdate (MM/DD/YYYY): ")
+	UserfirstName := user.GetUserData("Please enter your first name: ")
+	UserlastName := user.GetUserData("Please enter your last name: ")
+	Userbirthdate := user.GetUserData("Please enter your first birthdate (MM/DD/YYYY): ")
 
-	var appUser *user
-	appUser = newUser(UserfirstName, UserlastName, Userbirthdate)
-	// appUser = user{
-	// 	firstName: UserfirstName,
-	// 	lastName:  UserlastName,
-	// 	birthdate: Userbirthdate,
-	// 	createdAt: time.Now(),
-	// }
+	var appUser *user.User
+	appUser, err := user.New(UserfirstName, UserlastName, Userbirthdate)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	//.. do something awsome with that gathered data!
-	// outputUserDetails(&appUser)
-	appUser.outputUserDetails()
-	appUser.clearUserName()
-	appUser.outputUserDetails()
+	admin := user.NewAdmin("test@exemple.com", "1234")
 
-}
+	admin.OutputUserDetails()
+	admin.ClearUserName()
+	admin.OutputUserDetails()
 
-func (u *user) outputUserDetails() {
-	fmt.Println(u.firstName, u.lastName, u.birthdate)
-}
-func (u *user) clearUserName() {
-	u.firstName = ""
-	u.lastName = ""
-}
+	appUser.OutputUserDetails()
+	appUser.ClearUserName()
+	appUser.OutputUserDetails()
 
-func getUserData(promptText string) string {
-	fmt.Print(promptText)
-	var value string
-	fmt.Scan(&value)
-	return value
 }
