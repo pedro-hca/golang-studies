@@ -28,7 +28,7 @@ func New(title, content string) (Note, error) {
 }
 
 func (note Note) Display() {
-	fmt.Printf("Your note title %v has the following content:\n\n%v\n\n", note.Title, note.Content)
+	fmt.Printf("Your note titled %v has the following content:\n\n%v\n\n", note.Title, note.Content)
 }
 
 func (note Note) Save() error {
