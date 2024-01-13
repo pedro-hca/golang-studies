@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/pedro-hca/go-studies/structs/user"
+	"github.com/pedro-hca/go-studies/03-structs-custom-types/user"
 )
 
 func main() {

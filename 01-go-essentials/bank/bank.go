@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Pallinder/go-randomdata"
-	"github.com/pedro-hca/go-studies/bank/fileops"
+	"github.com/pedro-hca/go-studies/01-go-essentials/bank/fileops"
 )
 
 const accountBalanceFile = "balance.txt"
