@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"example.com/note/note"
-	"example.com/note/todo"
+	"github.com/pedro-hca/go-studies/project-getting-user-input/note"
+	"github.com/pedro-hca/go-studies/project-getting-user-input/todo"
 )
 
 type saver interface {

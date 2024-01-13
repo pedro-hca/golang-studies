@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"example.com/bank/fileops"
 	"github.com/Pallinder/go-randomdata"
+	"github.com/pedro-hca/go-studies/bank/fileops"
 )
 
 const accountBalanceFile = "balance.txt"
