@@ -11,6 +11,23 @@ func main() {
 	fmt.Println(prices)
 	prices = prices[1:]
 	fmt.Println(prices)
+
+	discountPrices := []float64{9, 10, 11}
+	prices = append(prices, discountPrices...)
+	fmt.Println(discountPrices)
+	fmt.Println(prices)
+
+	userNames := make([]string, 2, 5)
+	fmt.Println(userNames)
+	userNames[0] = "Mairo"
+	fmt.Println(userNames)
+	userNames = append(userNames, "Pedro", "Abigail")
+	fmt.Println(userNames, cap(userNames))
+
+	for index, value := range userNames {
+		fmt.Println(index)
+		fmt.Println(value)
+	}
 }
 
 // func main() {

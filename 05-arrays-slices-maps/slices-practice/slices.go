@@ -1,6 +1,53 @@
 package main
 
+import "fmt"
+
+type Product struct {
+	title string
+	id    int
+	price float64
+}
+
 func main() {
+
+	// 1)
+	hobbiesArr := [3]string{"Gym", "Videogames", "Biking"}
+	fmt.Println(hobbiesArr)
+	// 2)
+	fmt.Println(hobbiesArr[0])
+	fmt.Println(hobbiesArr[1:3])
+	// 3)
+	hobbiesSlice := hobbiesArr[:2]
+	fmt.Println(hobbiesSlice, cap(hobbiesSlice))
+	// 4)
+	hobbiesSlice = hobbiesSlice[1:3]
+	fmt.Println(hobbiesSlice)
+	// 5)
+	goaslSlice := []string{"Learn Go", "Understand concurrency"}
+	fmt.Println(goaslSlice)
+	// 6)
+	goaslSlice[1] = "Learn concurrency"
+	fmt.Println(goaslSlice)
+	goaslSlice = append(goaslSlice, "Learn how to create a good API in Go")
+	fmt.Println(goaslSlice)
+	// 7)
+	product := []Product{
+		{
+			title: "monitor",
+			id:    1,
+			price: 1500,
+		},
+		{title: "keyboard",
+			id:    2,
+			price: 500,
+		},
+	}
+	product = append(product, Product{
+		title: "mouse",
+		id:    3,
+		price: 200,
+	})
+	fmt.Println(product)
 
 }
 
