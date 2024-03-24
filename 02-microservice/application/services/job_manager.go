@@ -4,6 +4,7 @@ import (
 	"encoder/application/repositories"
 	"encoder/domain"
 	"encoder/framework/queue"
+	"encoding/json"
 	"log"
 	"os"
 	"strconv"
@@ -66,21 +67,65 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 
 }
 
-func (j *JobManager) checkParseErrors(jobResult JobWorkerResult) error {
-	if jobResult.Job.ID != "" {
-		log.Printf("MessageID #{jobResult.Message.DeliveryTag}. Error parsing job: #{jobResult.Job.ID}")
-	} else {
-		log.Printf("MessageID #{jobResult.Message.DeliveryTag}. Error parsing message: #{jobResult.Error}")
+func (j *JobManager) notifySucess(jobResult JobWorkerResult, ch *amqp.Channel) error {
+
+	Mutex.Lock()
+	jobJson, err := json.Marshal(jobResult.Job)
+	Mutex.Unlock()
+
+	if err != nil {
+		return err
 	}
 
-	// errorMsg := JobNotificationError{
-	// 	Message: string(jobResult.Message.Body),
-	// 	Error:   jobResult.Error.Error(),
-	// }
+	err = j.notify(jobJson)
 
-	//JobJson, err := json.Marshal(errorMsg)
+	if err != nil {
+		return err
+	}
 
-	//falta implementar a notificacao
+	err = jobResult.Message.Ack(false)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (j *JobManager) checkParseErrors(jobResult JobWorkerResult) error {
+	if jobResult.Job.ID != "" {
+		log.Printf("MessageID: %v. Error during the job: %v with video: %v. Error: %v", jobResult.Message.DeliveryTag, jobResult.Job.ID, jobResult.Job.Video.ID, jobResult.Error.Error())
+	} else {
+		log.Printf("MessageID: %v. Error parsing message: %v", jobResult.Message.DeliveryTag, jobResult.Error)
+	}
+
+	errorMsg := JobNotificationError{
+		Message: string(jobResult.Message.Body),
+		Error:   jobResult.Error.Error(),
+	}
+
+	jobJson, err := json.Marshal(errorMsg)
+
+	err = j.notify(jobJson)
+
+	if err != nil {
+		return err
+	}
+
+	err = jobResult.Message.Reject(false)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (j *JobManager) notify(jobJson []byte) error {
+	err := j.RabbitMQ.Notify(string(jobJson), "application/json", os.Getenv("RABBITMQ_NOTIFICATION_EX"), os.Getenv("RABBITMQ_NOTIFICATION_ROUTING_KEY"))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
