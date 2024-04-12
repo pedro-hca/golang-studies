@@ -20,7 +20,8 @@ func StructToParquet(fileName string, hotels []hotel.Hotel) error {
 }
 
 func GenericToParquet(fileName string, hotels []hotel.Hotel) error {
-	fileHotel, err := os.Create("hotelTemp.parquet")
+	file := fmt.Sprintf("%s.parquet", fileName)
+	fileHotel, err := os.Create(file)
 	if err != nil {
 		return fmt.Errorf("Error creating file:, %v", err)
 	}

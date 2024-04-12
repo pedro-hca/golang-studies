@@ -46,7 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error parsing to parquet, %v", err)
 	}
-	err = parquet.GenericToParquet("hotels", hotels)
+	err = parquet.GenericToParquet("hotelsGeneric", hotels)
 	if err != nil {
 		log.Fatalf("Error parsing to parquet, %v", err)
 	}
