@@ -42,12 +42,24 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error parsing json, %v", err)
 	}
-	err = parquet.StructToParquet("hotels", hotels)
-	if err != nil {
-		log.Fatalf("Error parsing to parquet, %v", err)
+	var names []string
+	var cities []string
+	var reviews []float32
+	for _, item := range hotels {
+		names = append(names, item.Name)
+		cities = append(cities, item.City)
+		reviews = append(reviews, item.Review)
 	}
-	err = parquet.GenericToParquet("hotelsGeneric", hotels)
-	if err != nil {
-		log.Fatalf("Error parsing to parquet, %v", err)
-	}
+
+	parquet.BuildStruct(names, cities, reviews)
+
+	// err = parquet.StructToParquet("hotels", hotels)
+	// if err != nil {
+	// 	log.Fatalf("Error parsing to parquet, %v", err)
+	// }
+	// err = parquet.GenericToParquet("hotelsGeneric", hotels)
+	// if err != nil {
+	// 	log.Fatalf("Error parsing to parquet, %v", err)
+	// }
+
 }

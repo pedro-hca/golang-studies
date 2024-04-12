@@ -27,6 +27,7 @@ func GenericToParquet(fileName string, hotels []hotel.Hotel) error {
 	}
 
 	writer := parquet.NewGenericWriter[hotel.Hotel](fileHotel)
+	// escrever por cima do arquivo
 
 	_, err = writer.Write(hotels)
 	if err != nil {
@@ -40,3 +41,7 @@ func GenericToParquet(fileName string, hotels []hotel.Hotel) error {
 	return nil
 
 }
+
+// func OverWriteParquet(file os.File, hotels []hotel.Hotel) error {
+
+// }
