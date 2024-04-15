@@ -1,17 +1,15 @@
 package parquet
 
 import (
-	// "github.com/apache/arrow/go/arrow"
-	// "github.com/apache/arrow/go/arrow/array"
-	// "github.com/apache/arrow/go/arrow/memory"
-	// "github.com/apache/arrow/go/arrow/parquet/pqarrow"
 	"fmt"
+	"sync"
 
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 )
 
+// just testing int build
 func BuildInt64() {
 	bldr := array.NewInt64Builder(memory.DefaultAllocator)
 	defer bldr.Release()
@@ -30,6 +28,7 @@ func BuildInt64() {
 	// Output: [25 (null) 1 2 3 4 5 (null) 6 7]
 }
 
+// just testing build structs
 func BuildStruct(names []string, cities []string, reviews []float32) {
 	// Schema
 	hotelType := arrow.StructOf(
@@ -60,4 +59,24 @@ func BuildStruct(names []string, cities []string, reviews []float32) {
 
 	fmt.Println(arr)
 
+}
+
+func CsvJsonToParquetGoroutines() {
+	/// implementar essa go routine
+	var wg sync.WaitGroup
+	const nworkers = 10
+	wg.Add(nworkers)
+	for i := 0; i < nworkers; i++ {
+		go func() {
+			defer wg.Done()
+			// put the record manipulation here
+		}()
+	}
+
+	go func() {
+		wg.Wait()
+		// close(ch2)
+	}()
+
+	/// need to implement
 }

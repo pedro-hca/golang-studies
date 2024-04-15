@@ -1,0 +1,3 @@
+jsoncolumn
+"[{'id': 123, 'name': 'Comedy'}, {'id': 456, 'name': 'Drama'}]"
+"[{'id': 456, 'name': 'abc'}, {'id': 456, 'name': 'Drama'}]"

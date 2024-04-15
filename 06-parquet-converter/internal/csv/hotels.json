@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "name": "Grand Hotel Luxor",
+        "city": "Metropolis",
+        "review": 4.3
+    },
+    {
+        "id": 2,
+        "name": "Sunset Beach Resort",
+        "city": "Seaville",
+        "review": 4.5
+    },
+    {
+        "id": 3,
+        "name": "Mountain View Lodge",
+        "city": "Peaksville",
+        "review": 4.2
+    },
+    {
+        "id": 4,
+        "name": "Royal Oasis Palace",
+        "city": "Kingstown",
+        "review": 4.7
+    },
+    {
+        "id": 5,
+        "name": "Golden Sands Retreat",
+        "city": "Sunnydale",
+        "review": 4.0
+    }
+]

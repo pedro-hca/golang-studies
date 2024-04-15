@@ -5,7 +5,7 @@ go 1.22.0
 require (
 	github.com/JohnCGriffin/overflow v0.0.0-20211019200055-46fa312c352c // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/apache/arrow/go/v16 v16.0.0-20240412130436-48a9639bb0ba // indirect
+	github.com/apache/arrow/go/v16 v16.0.0-20240412181132-ec2d7cbfb426 // indirect
 	github.com/apache/thrift v0.19.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
