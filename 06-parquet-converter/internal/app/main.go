@@ -1,7 +1,8 @@
 package main
 
 import (
-	"parquet.example/internal/pkg/parquet"
+	"fmt"
+	"os"
 )
 
 func main() {
@@ -49,8 +50,14 @@ func main() {
 
 	// parquet.BuildStruct(names, cities, reviews)
 	// parquet.ReadCSV()
-	// parquet.JsonFileToParquet()
-	parquet.JsonToParquet()
+	currentDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Erro ao obter o diretório de trabalho atual:", err)
+		return
+	}
+	fmt.Println("Diretório de trabalho atual:", currentDir)
+	// parquet.JsonFileToParquet("hotels.json", utils.GetParquetFilePath())
+	// parquet.JsonToParquet()
 	// parquet.CsvToParquet()
 
 	// err = parquet.StructToParquet("hotels", hotels)

@@ -3,8 +3,10 @@ package parquet
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 
 	"github.com/apache/arrow/go/v16/arrow"
@@ -13,20 +15,21 @@ import (
 	"github.com/apache/arrow/go/v16/parquet"
 	"github.com/apache/arrow/go/v16/parquet/compress"
 	"github.com/apache/arrow/go/v16/parquet/pqarrow"
+	"parquet.example/internal/pkg/utils"
 )
 
-func JsonFileToParquet() error {
+func JsonFileToParquet(filePath string, outputDir string) error {
 	var recordArray []arrow.Record
 
-	jsonFile, err := os.Open("../csv/hotels.json")
+	jsonFile, err := os.Open(utils.GetJsonFilePath() + filePath)
 	if err != nil {
-		return fmt.Errorf("Error while opening .json file: %v", err)
+		return fmt.Errorf("error while opening .json file: %w", err)
 	}
 	defer jsonFile.Close()
 
 	jsonBytes, err := io.ReadAll(jsonFile)
 	if err != nil {
-		return fmt.Errorf("Error while reading .json file: %v", err)
+		return fmt.Errorf("error while reading .json file: %w", err)
 	}
 	// Schema Record
 	schemaRecord := arrow.NewSchema(
@@ -53,7 +56,13 @@ func JsonFileToParquet() error {
 
 	recordArray = append(recordArray, array.RecordFromStructArray(structArray, schemaRecord))
 
-	pqout, err := os.Create("hotels_json_file_metadata.parquet")
+	randomHex, err := utils.NewRandomSuffix()
+	if err != nil {
+		innerErr := errors.Unwrap(err)
+		log.Fatalf("Iternal error: %v", innerErr)
+	}
+	fileName := fmt.Sprintf(outputDir+"hotels_metadata_%s.parquet", randomHex)
+	pqout, err := os.Create(fileName)
 	if err != nil {
 		panic(err)
 	}
@@ -82,7 +91,6 @@ func JsonFileToParquet() error {
 	}
 
 	return nil
-
 }
 func JsonToParquet() {
 	jsonObj := `[
@@ -142,10 +150,18 @@ func JsonToParquet() {
 	structArray := rb.NewStructArray()
 	recordArray = append(recordArray, array.RecordFromStructArray(structArray, schemaRecord))
 
-	pqout, err := os.Create("hotels_json_obj_metadata.parquet")
+	randomHex, err := utils.NewRandomSuffix()
+	if err != nil {
+		innerErr := errors.Unwrap(err)
+		log.Fatalf("Iternal error: %v", innerErr)
+
+	}
+	fileName := fmt.Sprintf(utils.GetParquetFilePath()+"hotels_metadata_%s.parquet", randomHex)
+	pqout, err := os.Create(fileName)
 	if err != nil {
 		panic(err)
 	}
+	defer pqout.Close()
 
 	wr, err := pqarrow.NewFileWriter(schemaRecord, pqout,
 		parquet.NewWriterProperties(
@@ -255,7 +271,7 @@ func JsonToParquetGoroutines() {
 			}
 			// Convert bytes to hexadecimal string
 			randomHex := hex.EncodeToString(randomBytes)
-			fileName := fmt.Sprintf("hotels_metadata_%s.parquet", randomHex)
+			fileName := fmt.Sprintf(utils.GetParquetFilePath()+"hotels_metadata_%s.parquet", randomHex)
 
 			pqout, err := os.Create(fileName)
 			if err != nil {
