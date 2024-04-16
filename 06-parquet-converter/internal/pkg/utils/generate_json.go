@@ -15,9 +15,9 @@ type Hotel struct {
 }
 
 func GenerateJson() {
-	file, err := os.Create("../pkg/json/hotels.json")
+	file, err := os.Create(GetJsonFilePath() + "hotels_100000.json")
 	if err != nil {
-		fmt.Println("Erro ao criar arquivo:", err)
+		fmt.Println("Error while creating json file:", err)
 		return
 	}
 	defer file.Close()
@@ -25,7 +25,7 @@ func GenerateJson() {
 	encoder := json.NewEncoder(file)
 
 	// Gerar 10 mil registros
-	for i := 1; i <= 10000; i++ {
+	for i := 1; i <= 100000; i++ {
 		hotel := Hotel{
 			ID:     i,
 			Name:   fmt.Sprintf("Hotel %d", i),
@@ -34,10 +34,10 @@ func GenerateJson() {
 		}
 
 		if err := encoder.Encode(hotel); err != nil {
-			fmt.Println("Erro ao codificar hotel:", err)
+			fmt.Println("Error while enconding hotel:", err)
 			return
 		}
 	}
 
-	fmt.Println("Arquivo hotels.json criado com sucesso!")
+	fmt.Println(".json is ready!")
 }

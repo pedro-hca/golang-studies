@@ -1,12 +1,17 @@
 package parquet
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"sync"
 
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/apache/arrow/go/v16/parquet"
+	"github.com/apache/arrow/go/v16/parquet/pqarrow"
+	"parquet.example/internal/pkg/utils"
 )
 
 // just testing int build
@@ -79,4 +84,37 @@ func CsvJsonToParquetGoroutines() {
 	}()
 
 	/// need to implement
+}
+
+func ReadParquetFile() {
+	f, err := os.Open(utils.GetParquetFilePath() + "hotels_metadata_79256469048fc715.parquet")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	tbl, err := pqarrow.ReadTable(context.Background(), f, parquet.NewReaderProperties(memory.DefaultAllocator),
+		pqarrow.ArrowReadProperties{}, memory.DefaultAllocator)
+	if err != nil {
+		panic(err)
+	}
+
+	s := tbl.Schema()
+	fmt.Println(s)
+	fmt.Println("------")
+
+	fmt.Println("the count of table columns=", tbl.NumCols())
+	fmt.Println("the count of table rows=", tbl.NumRows())
+	fmt.Println("------")
+
+	// for i := 0; i < int(tbl.NumCols()); i++ {
+	// 	col := tbl.Column(i)
+	// 	fmt.Printf("arrays in column(%s):\n", col.Name())
+	// 	chunk := col.Data()
+	// 	for _, arr := range chunk.Chunks() {
+	// 		fmt.Println(arr)
+	// 	}
+	// 	fmt.Println("------")
+	// }
+
 }

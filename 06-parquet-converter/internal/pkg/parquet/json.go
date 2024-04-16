@@ -47,11 +47,11 @@ func JsonFileToParquet(filePath string, outputDir string) error {
 		arrow.Field{Name: "city", Type: arrow.BinaryTypes.String},
 		arrow.Field{Name: "review", Type: arrow.PrimitiveTypes.Float64},
 	)
-	rb := array.NewStructBuilder(memory.DefaultAllocator, schemaStruct)
-	defer rb.Release() // Ensure the builder releases its resources
+	structBuilder := array.NewStructBuilder(memory.DefaultAllocator, schemaStruct)
+	defer structBuilder.Release() // Ensure the builder releases its resources
 
-	rb.UnmarshalJSON(jsonBytes)
-	structArray := rb.NewStructArray()
+	structBuilder.UnmarshalJSON(jsonBytes)
+	structArray := structBuilder.NewStructArray()
 	defer structArray.Release() // Match retain with release
 
 	recordArray = append(recordArray, array.RecordFromStructArray(structArray, schemaRecord))
@@ -187,7 +187,7 @@ func JsonToParquet() {
 
 }
 
-func JsonToParquetGoroutines() {
+func JsonToParquetGoroutines() error {
 	jsonObj := `[
 		{
 			"id": 1,
@@ -258,7 +258,7 @@ func JsonToParquetGoroutines() {
 
 		defer close(recordChan)
 	}()
-	go func() {
+	go func() error {
 
 		for recordArrayChan := range recordChan {
 
@@ -266,8 +266,8 @@ func JsonToParquetGoroutines() {
 			randomBytes := make([]byte, 8)
 			_, err := rand.Read(randomBytes)
 			if err != nil {
-				fmt.Errorf("Error while generating random suffix name", err)
-				return
+				return fmt.Errorf("error while generating random suffix name: %w", err)
+
 			}
 			// Convert bytes to hexadecimal string
 			randomHex := hex.EncodeToString(randomBytes)
@@ -303,7 +303,8 @@ func JsonToParquetGoroutines() {
 			}
 		}
 		doneChan <- true
+		return nil
 	}()
 	<-doneChan
-
+	return nil
 }
