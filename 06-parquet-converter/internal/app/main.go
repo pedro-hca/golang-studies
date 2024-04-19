@@ -56,8 +56,20 @@ func main() {
 	// }
 	// fmt.Println("Diretório de trabalho atual:", currentDir)
 
-	// parquet.JsonFileToParquet("hotels_100000.json", utils.GetParquetFilePath())
-	parquet.CsvToParquet()
+	parquet.JsonFileToParquet("hotels_100000.json")
+	// parquet.CsvToParquet("hotels_10000.csv")
+
+	// numRecords := 10000
+
+	// // Gerar registros
+	// records := utils.GenerateRecords(numRecords)
+
+	// // Escrever registros em um arquivo CSV
+	// filename := "records.csv"
+	// if err := utils.WriteCSV(filename, records); err != nil {
+	// 	log.Fatalf("Erro ao escrever CSV: %v", err)
+	// }
+	// log.Printf("Arquivo CSV com %d registros criado com sucesso: %s", numRecords, filename)
 
 	// utils.GenerateJson()
 	// parquet.CsvFileToParquet()

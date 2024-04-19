@@ -21,7 +21,7 @@ func BenchmarkJsonFileToParquet(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		err := parquet.JsonFileToParquet(filePath, outputDir)
+		err := parquet.JsonFileToParquet(filePath)
 		if err != nil {
 			b.Fatal(err)
 		}

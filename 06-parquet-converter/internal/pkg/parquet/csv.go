@@ -15,17 +15,26 @@ import (
 	"github.com/apache/arrow/go/v16/parquet"
 	"github.com/apache/arrow/go/v16/parquet/compress"
 	"github.com/apache/arrow/go/v16/parquet/pqarrow"
+	"parquet.example/internal/pkg/schema"
 	"parquet.example/internal/pkg/utils"
 )
 
-func CsvToParquet() {
-
-	ch := make(chan arrow.Record, 20)
+func CsvToParquet(filePath string) {
+	var recordArr []arrow.Record
+	ch := make(chan []arrow.Record, 20)
+	schemaRecord := arrow.NewSchema(
+		[]arrow.Field{
+			{Name: "id", Type: arrow.PrimitiveTypes.Int64},
+			{Name: "name", Type: arrow.BinaryTypes.String},
+			{Name: "city", Type: arrow.BinaryTypes.String},
+			{Name: "review", Type: arrow.PrimitiveTypes.Float64},
+		}, nil,
+	)
 	go func() {
 		//close the channel when done to signal
-		// future pipeline steps
 		defer close(ch)
-		file, err := os.Open(utils.GetCsvFilePath() + "hotelsTest.csv")
+
+		file, err := os.Open(utils.GetCsvFilePath() + filePath)
 		if err != nil {
 			panic(err)
 		}
@@ -33,7 +42,6 @@ func CsvToParquet() {
 
 		// infer the types and schema from the header line
 		// and first line of data
-
 		rdr := csv.NewInferringReader(file, csv.WithChunk(-1),
 			// strings can be null, and these are the values
 			// to consider as "null"
@@ -41,26 +49,17 @@ func CsvToParquet() {
 			csv.WithHeader(true))
 
 		for rdr.Next() {
-			fmt.Println(rdr)
-			rec := rdr.Record() //maybe use structarray here
+			rec := rdr.Record()
+			structArray := array.RecordToStructArray(rec)
 			fmt.Println(rec)
-			rec.Retain()
-			ch <- rec
+			recordArr = append(recordArr, array.RecordFromStructArray(structArray, schemaRecord))
+			ch <- recordArr
 		}
 
 		if rdr.Err() != nil {
 			panic(rdr.Err())
 		}
 	}()
-
-	schemaRecord := arrow.NewSchema(
-		[]arrow.Field{
-			{Name: "id", Type: arrow.PrimitiveTypes.Int32},
-			{Name: "name", Type: arrow.BinaryTypes.String},
-			{Name: "city", Type: arrow.BinaryTypes.String},
-			{Name: "review", Type: arrow.PrimitiveTypes.Float64},
-		}, nil,
-	)
 
 	randomHex, err := utils.NewRandomSuffix()
 	if err != nil {
@@ -89,10 +88,49 @@ func CsvToParquet() {
 	}
 	defer wr.Close()
 
-	for rec := range ch {
-		wr.Write(rec)
-		rec.Release()
+	for recArr := range ch {
+		for _, rec := range recArr {
+			wr.Write(rec)
+			rec.Release()
+		}
+
 	}
+}
+func CsvToArrow(fileName string) chan []arrow.Record {
+	var recordArr []arrow.Record
+	out := make(chan []arrow.Record)
+	go func() {
+		//close the channel when done to signal
+		defer close(out)
+
+		file, err := os.Open(utils.GetCsvFilePath() + fileName)
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+		// infer the types and schema from the header line
+		// and first line of data
+		rdr := csv.NewInferringReader(file, csv.WithChunk(-1),
+			// strings can be null, and these are the values
+			// to consider as "null"
+			csv.WithNullReader(true, "", "null", "[]"),
+			csv.WithHeader(true))
+
+		for rdr.Next() {
+			fmt.Println(rdr)
+			rec := rdr.Record()
+			structArray := array.RecordToStructArray(rec)
+			fmt.Println(rec)
+			recordArr = append(recordArr, array.RecordFromStructArray(structArray, schema.GetRecordSchema()))
+			out <- recordArr
+		}
+
+		if rdr.Err() != nil {
+			panic(rdr.Err())
+		}
+	}()
+	return out
+
 }
 
 func CsvFileToParquet() {
@@ -135,7 +173,7 @@ func CsvFileToParquet() {
 	// we need to know the fields we're expecting in this JSON string
 	// harcoded
 	bldr := array.NewListBuilder(memory.DefaultAllocator, arrow.StructOf(
-		arrow.Field{Name: "id", Type: arrow.PrimitiveTypes.Int32},
+		arrow.Field{Name: "id", Type: arrow.PrimitiveTypes.Int64},
 		arrow.Field{Name: "name", Type: arrow.BinaryTypes.String},
 	))
 	fmt.Println(bldr)

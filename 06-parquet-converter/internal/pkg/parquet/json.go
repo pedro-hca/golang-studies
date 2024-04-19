@@ -18,7 +18,7 @@ import (
 	"parquet.example/internal/pkg/utils"
 )
 
-func JsonFileToParquet(filePath string, outputDir string) error {
+func JsonFileToParquet(filePath string) error {
 	var recordArray []arrow.Record
 
 	jsonFile, err := os.Open(utils.GetJsonFilePath() + filePath)
@@ -31,22 +31,18 @@ func JsonFileToParquet(filePath string, outputDir string) error {
 	if err != nil {
 		return fmt.Errorf("error while reading .json file: %w", err)
 	}
+
+	schema := []arrow.Field{
+		{Name: "id", Type: arrow.PrimitiveTypes.Int64},
+		{Name: "name", Type: arrow.BinaryTypes.String},
+		{Name: "city", Type: arrow.BinaryTypes.String},
+		{Name: "review", Type: arrow.PrimitiveTypes.Float64},
+	}
 	// Schema Record
-	schemaRecord := arrow.NewSchema(
-		[]arrow.Field{
-			{Name: "id", Type: arrow.PrimitiveTypes.Int32},
-			{Name: "name", Type: arrow.BinaryTypes.String},
-			{Name: "city", Type: arrow.BinaryTypes.String},
-			{Name: "review", Type: arrow.PrimitiveTypes.Float64},
-		}, nil,
-	)
+	schemaRecord := arrow.NewSchema(schema, nil)
 	// Schema Struct
-	schemaStruct := arrow.StructOf(
-		arrow.Field{Name: "id", Type: arrow.PrimitiveTypes.Int32},
-		arrow.Field{Name: "name", Type: arrow.BinaryTypes.String},
-		arrow.Field{Name: "city", Type: arrow.BinaryTypes.String},
-		arrow.Field{Name: "review", Type: arrow.PrimitiveTypes.Float64},
-	)
+	schemaStruct := arrow.StructOf(schema...)
+
 	structBuilder := array.NewStructBuilder(memory.DefaultAllocator, schemaStruct)
 	defer structBuilder.Release() // Ensure the builder releases its resources
 
@@ -61,7 +57,7 @@ func JsonFileToParquet(filePath string, outputDir string) error {
 		innerErr := errors.Unwrap(err)
 		log.Fatalf("Iternal error: %v", innerErr)
 	}
-	fileName := fmt.Sprintf(outputDir+"hotels_metadata_%s.parquet", randomHex)
+	fileName := fmt.Sprintf(utils.GetParquetFilePath()+"hotels_metadata_%s.parquet", randomHex)
 	pqout, err := os.Create(fileName)
 	if err != nil {
 		panic(err)
@@ -131,7 +127,7 @@ func JsonToParquet() {
 	// Schema Record
 	schemaRecord := arrow.NewSchema(
 		[]arrow.Field{
-			{Name: "id", Type: arrow.PrimitiveTypes.Int32},
+			{Name: "id", Type: arrow.PrimitiveTypes.Int64},
 			{Name: "name", Type: arrow.BinaryTypes.String},
 			{Name: "city", Type: arrow.BinaryTypes.String},
 			{Name: "review", Type: arrow.PrimitiveTypes.Float64},
@@ -139,7 +135,7 @@ func JsonToParquet() {
 	)
 	// Schema Struct
 	schemaStruct := arrow.StructOf(
-		arrow.Field{Name: "id", Type: arrow.PrimitiveTypes.Int32},
+		arrow.Field{Name: "id", Type: arrow.PrimitiveTypes.Int64},
 		arrow.Field{Name: "name", Type: arrow.BinaryTypes.String},
 		arrow.Field{Name: "city", Type: arrow.BinaryTypes.String},
 		arrow.Field{Name: "review", Type: arrow.PrimitiveTypes.Float64},
@@ -226,7 +222,7 @@ func JsonToParquetGoroutines() error {
 	// Schema Record
 	schemaRecord := arrow.NewSchema(
 		[]arrow.Field{
-			{Name: "id", Type: arrow.PrimitiveTypes.Int32},
+			{Name: "id", Type: arrow.PrimitiveTypes.Int64},
 			{Name: "name", Type: arrow.BinaryTypes.String},
 			{Name: "city", Type: arrow.BinaryTypes.String},
 			{Name: "review", Type: arrow.PrimitiveTypes.Float64},
@@ -234,7 +230,7 @@ func JsonToParquetGoroutines() error {
 	)
 	// Schema Struct
 	schemaStruct := arrow.StructOf(
-		arrow.Field{Name: "id", Type: arrow.PrimitiveTypes.Int32},
+		arrow.Field{Name: "id", Type: arrow.PrimitiveTypes.Int64},
 		arrow.Field{Name: "name", Type: arrow.BinaryTypes.String},
 		arrow.Field{Name: "city", Type: arrow.BinaryTypes.String},
 		arrow.Field{Name: "review", Type: arrow.PrimitiveTypes.Float64},

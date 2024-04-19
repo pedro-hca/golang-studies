@@ -1,10 +1,12 @@
 package utils
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
+	"strconv"
 )
 
 type Hotel struct {
@@ -40,4 +42,50 @@ func GenerateJson() {
 	}
 
 	fmt.Println(".json is ready!")
+}
+
+func GenerateRecords(numRecords int) []Hotel {
+	var records []Hotel
+	for i := 1; i <= numRecords; i++ {
+		record := Hotel{
+			ID:     i,
+			Name:   "Hotel" + strconv.Itoa(i),
+			City:   "City" + strconv.Itoa(i),
+			Review: float64(i) * 0.1, // Geração de revisão fictícia
+		}
+		records = append(records, record)
+	}
+	return records
+}
+
+func WriteCSV(filename string, records []Hotel) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// Escrever cabeçalho
+	header := []string{"id", "name", "city", "review"}
+	if err := writer.Write(header); err != nil {
+		return err
+	}
+
+	// Escrever registros
+	for _, record := range records {
+		row := []string{
+			strconv.Itoa(record.ID),
+			record.Name,
+			record.City,
+			strconv.FormatFloat(record.Review, 'f', 1, 64),
+		}
+		if err := writer.Write(row); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

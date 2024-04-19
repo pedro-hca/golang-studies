@@ -4,44 +4,43 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/parquet-go/parquet-go"
-	"parquet.example/internal/pkg/hotel"
+	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/parquet"
+	"github.com/apache/arrow/go/v16/parquet/compress"
+	"github.com/apache/arrow/go/v16/parquet/pqarrow"
+	"parquet.example/internal/pkg/schema"
+	"parquet.example/internal/pkg/utils"
 )
 
-func StructToParquet(fileName string, hotels []hotel.Hotel) error {
-	file := fmt.Sprintf("%s.parquet", fileName)
+func ArrowToParquet(records <-chan []arrow.Record) {
 
-	err := parquet.WriteFile(file, hotels)
+	randomHex, _ := utils.NewRandomSuffix()
+	fileName := fmt.Sprintf(utils.GetParquetFilePath()+"hotels_metadata_%s.parquet", randomHex)
+	pqout, err := os.Create(fileName)
 	if err != nil {
-		return fmt.Errorf("error writing file:, %v", err)
+		panic(err)
 	}
-	return nil
 
+	wr, err := pqarrow.NewFileWriter(schema.GetRecordSchema(), pqout,
+		parquet.NewWriterProperties(
+			parquet.WithCompression(compress.Codecs.Snappy),
+			parquet.WithCompressionFor("review", compress.Codecs.Zstd),
+			parquet.WithDictionaryDefault(false),
+			parquet.WithDictionaryFor("city", true),
+			parquet.WithEncodingFor("id", parquet.Encodings.DeltaBinaryPacked),
+			parquet.WithDataPageVersion(parquet.DataPageV2),
+			parquet.WithVersion(parquet.V2_LATEST),
+		), pqarrow.DefaultWriterProps())
+	if err != nil {
+		panic(err)
+	}
+	defer wr.Close()
+
+	for recArr := range records {
+		for _, rec := range recArr {
+			wr.Write(rec)
+			rec.Release()
+		}
+
+	}
 }
-
-func GenericToParquet(fileName string, hotels []hotel.Hotel) error {
-	file := fmt.Sprintf("%s.parquet", fileName)
-	fileHotel, err := os.Create(file)
-	if err != nil {
-		return fmt.Errorf("error creating file:, %v", err)
-	}
-
-	writer := parquet.NewGenericWriter[hotel.Hotel](fileHotel)
-	// escrever por cima do arquivo
-
-	_, err = writer.Write(hotels)
-	if err != nil {
-		return fmt.Errorf("error writing file:, %v", err)
-	}
-
-	err = writer.Close()
-	if err != nil {
-		return fmt.Errorf("error writing file:, %v", err)
-	}
-	return nil
-
-}
-
-// func OverWriteParquet(file os.File, hotels []hotel.Hotel) error {
-
-// }
