@@ -6,7 +6,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow"
 )
 
-func FanIn(chans ...<-chan []arrow.Record) <-chan []arrow.Record {
+func FanIn(chans ...<-chan []arrow.Record) chan []arrow.Record {
 	out := make(chan []arrow.Record)
 	wg := &sync.WaitGroup{}
 	wg.Add(len(chans))

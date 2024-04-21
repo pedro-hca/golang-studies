@@ -12,8 +12,7 @@ import (
 	"parquet.example/internal/pkg/utils"
 )
 
-func ArrowToParquet(records <-chan []arrow.Record) {
-
+func ArrowToParquet(records []arrow.Record) {
 	randomHex, _ := utils.NewRandomSuffix()
 	fileName := fmt.Sprintf(utils.GetParquetFilePath()+"hotels_metadata_%s.parquet", randomHex)
 	pqout, err := os.Create(fileName)
@@ -36,11 +35,10 @@ func ArrowToParquet(records <-chan []arrow.Record) {
 	}
 	defer wr.Close()
 
-	for recArr := range records {
-		for _, rec := range recArr {
-			wr.Write(rec)
-			rec.Release()
-		}
+	for _, rec := range records {
+
+		wr.Write(rec)
+		rec.Release()
 
 	}
 }

@@ -96,7 +96,7 @@ func CsvToParquet(filePath string) {
 
 	}
 }
-func CsvToArrow(fileName string) chan []arrow.Record {
+func CsvToArrowChannel(fileName string) <-chan []arrow.Record {
 	var recordArr []arrow.Record
 	out := make(chan []arrow.Record)
 	go func() {
@@ -117,10 +117,8 @@ func CsvToArrow(fileName string) chan []arrow.Record {
 			csv.WithHeader(true))
 
 		for rdr.Next() {
-			fmt.Println(rdr)
 			rec := rdr.Record()
 			structArray := array.RecordToStructArray(rec)
-			fmt.Println(rec)
 			recordArr = append(recordArr, array.RecordFromStructArray(structArray, schema.GetRecordSchema()))
 			out <- recordArr
 		}

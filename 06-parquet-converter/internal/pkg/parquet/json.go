@@ -15,6 +15,7 @@ import (
 	"github.com/apache/arrow/go/v16/parquet"
 	"github.com/apache/arrow/go/v16/parquet/compress"
 	"github.com/apache/arrow/go/v16/parquet/pqarrow"
+	"parquet.example/internal/pkg/schema"
 	"parquet.example/internal/pkg/utils"
 )
 
@@ -31,17 +32,8 @@ func JsonFileToParquet(filePath string) error {
 	if err != nil {
 		return fmt.Errorf("error while reading .json file: %w", err)
 	}
-
-	schema := []arrow.Field{
-		{Name: "id", Type: arrow.PrimitiveTypes.Int64},
-		{Name: "name", Type: arrow.BinaryTypes.String},
-		{Name: "city", Type: arrow.BinaryTypes.String},
-		{Name: "review", Type: arrow.PrimitiveTypes.Float64},
-	}
-	// Schema Record
-	schemaRecord := arrow.NewSchema(schema, nil)
-	// Schema Struct
-	schemaStruct := arrow.StructOf(schema...)
+	schemaRecord := arrow.NewSchema(schema.Fields, nil)
+	schemaStruct := arrow.StructOf(schema.Fields...)
 
 	structBuilder := array.NewStructBuilder(memory.DefaultAllocator, schemaStruct)
 	defer structBuilder.Release() // Ensure the builder releases its resources
@@ -87,6 +79,43 @@ func JsonFileToParquet(filePath string) error {
 	}
 
 	return nil
+}
+
+func JsonFileToArrowChannel(filePath string) (<-chan []arrow.Record, <-chan error) {
+	var recordArray []arrow.Record
+	out := make(chan []arrow.Record)
+	errChan := make(chan error)
+
+	go func() {
+		defer close(out)
+		defer close(errChan)
+
+		jsonFile, err := os.Open(utils.GetJsonFilePath() + filePath)
+		if err != nil {
+			errChan <- fmt.Errorf("error while opening .json file: %w", err)
+		}
+		defer jsonFile.Close()
+
+		jsonBytes, err := io.ReadAll(jsonFile)
+		if err != nil {
+			errChan <- fmt.Errorf("error while reading .json file: %w", err)
+		}
+
+		schemaRecord := arrow.NewSchema(schema.Fields, nil)
+		schemaStruct := arrow.StructOf(schema.Fields...)
+
+		structBuilder := array.NewStructBuilder(memory.DefaultAllocator, schemaStruct)
+		defer structBuilder.Release() // Ensure the builder releases its resources
+
+		structBuilder.UnmarshalJSON(jsonBytes)
+		structArray := structBuilder.NewStructArray()
+		defer structArray.Release() // Match retain with release
+
+		recordArray = append(recordArray, array.RecordFromStructArray(structArray, schemaRecord))
+		out <- recordArray
+	}()
+
+	return out, errChan
 }
 func JsonToParquet() {
 	jsonObj := `[
