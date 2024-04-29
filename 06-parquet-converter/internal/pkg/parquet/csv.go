@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"sync"
 
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
@@ -96,38 +97,36 @@ func CsvToParquet(filePath string) {
 
 	}
 }
-func CsvToArrowChannel(fileName string) <-chan []arrow.Record {
+func CsvToArrowChannel(fileName string, out chan []arrow.Record) error {
 	var recordArr []arrow.Record
-	out := make(chan []arrow.Record)
-	go func() {
-		//close the channel when done to signal
-		defer close(out)
+	Mutex := &sync.Mutex{}
 
-		file, err := os.Open(utils.GetCsvFilePath() + fileName)
-		if err != nil {
-			panic(err)
-		}
-		defer file.Close()
-		// infer the types and schema from the header line
-		// and first line of data
-		rdr := csv.NewInferringReader(file, csv.WithChunk(-1),
-			// strings can be null, and these are the values
-			// to consider as "null"
-			csv.WithNullReader(true, "", "null", "[]"),
-			csv.WithHeader(true))
+	Mutex.Lock()
+	file, err := os.Open(utils.GetCsvFilePath() + fileName)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	// infer the types and schema from the header line
+	// and first line of data
+	rdr := csv.NewInferringReader(file, csv.WithChunk(-1),
+		// strings can be null, and these are the values
+		// to consider as "null"
+		csv.WithNullReader(true, "", "null", "[]"),
+		csv.WithHeader(true))
 
-		for rdr.Next() {
-			rec := rdr.Record()
-			structArray := array.RecordToStructArray(rec)
-			recordArr = append(recordArr, array.RecordFromStructArray(structArray, schema.GetRecordSchema()))
-			out <- recordArr
-		}
+	for rdr.Next() {
+		rec := rdr.Record()
+		structArray := array.RecordToStructArray(rec)
+		recordArr = append(recordArr, array.RecordFromStructArray(structArray, schema.GetRecordSchema()))
+		out <- append([]arrow.Record(nil), recordArr...)
+	}
+	Mutex.Unlock()
 
-		if rdr.Err() != nil {
-			panic(rdr.Err())
-		}
-	}()
-	return out
+	if rdr.Err() != nil {
+		panic(rdr.Err())
+	}
+	return nil
 
 }
 

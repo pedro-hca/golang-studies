@@ -12,7 +12,7 @@ func GetCsvFilePath() string {
 	// 	log.Fatalf("Error loading .env file")
 	// }
 	// return os.Getenv("COMMON_PATH") + "golang-studies/06-parquet-converter/internal/pkg/data/csv/"
-	return "/home/pedro/dev/golang-studies/06-parquet-converter/internal/pkg/data/csv/"
+	return "/home/pedro/workspace/studies/golang-studies/06-parquet-converter/internal/pkg/data/csv/"
 }
 func GetJsonFilePath() string {
 	// err := godotenv.Load("../../.env")
@@ -20,7 +20,7 @@ func GetJsonFilePath() string {
 	// 	log.Fatalf("Error loading .env file")
 	// }
 	// return os.Getenv("COMMON_PATH") + "golang-studies/06-parquet-converter/internal/pkg/data/json/"
-	return "/home/pedro/dev/golang-studies/06-parquet-converter/internal/pkg/data/json/"
+	return "/home/pedro/workspace/studies/golang-studies/06-parquet-converter/internal/pkg/data/json/"
 }
 func GetParquetFilePath() string {
 	// err := godotenv.Load("../../.env")
@@ -28,7 +28,7 @@ func GetParquetFilePath() string {
 	// 	log.Fatalf("Error loading .env file")
 	// }
 	// return os.Getenv("COMMON_PATH") + "golang-studies/06-parquet-converter/internal/pkg/data/parquet/"
-	return "/home/pedro/dev/golang-studies/06-parquet-converter/internal/pkg/data/parquet/"
+	return "/home/pedro/workspace/studies/golang-studies/06-parquet-converter/internal/pkg/data/parquet/"
 }
 func GetTestFilePath() string {
 	// err := godotenv.Load("../../.env")
@@ -36,5 +36,5 @@ func GetTestFilePath() string {
 	// 	log.Fatalf("Error loading .env file")
 	// }
 	// return os.Getenv("COMMON_PATH") + "golang-studies/06-parquet-converter/internal/pkg/data/test/"
-	return "/home/pedro/dev/golang-studies/06-parquet-converter/internal/pkg/data/test/"
+	return "/home/pedro/workspace/studies/golang-studies/06-parquet-converter/internal/pkg/data/test/"
 }

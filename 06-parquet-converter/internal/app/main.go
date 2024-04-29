@@ -2,67 +2,51 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"sync"
 
+	"github.com/apache/arrow/go/v16/arrow"
 	"parquet.example/internal/pkg/parquet"
 )
 
 func main() {
-	// 	obj := `[
-	// 	{
-	// 	  "name": "Grand Hotel Luxor",
-	// 	  "city": "Metropolis",
-	// 	  "review": 4.3
-	// 	},
-	// 	{
-	// 	  "name": "Sunset Beach Resort",
-	// 	  "city": "Seaville",
-	// 	  "review": 4.5
-	// 	},
-	// 	{
-	// 	  "name": "Mountain View Lodge",
-	// 	  "city": "Peaksville",
-	// 	  "review": 4.2
-	// 	},
-	// 	{
-	// 	  "name": "Royal Oasis Palace",
-	// 	  "city": "Kingstown",
-	// 	  "review": 4.7
-	// 	},
-	// 	{
-	// 	  "name": "Golden Sands Retreat",
-	// 	  "city": "Sunnydale",
-	// 	  "review": 4.0
-	// 	}
-	//   ]
-	//   `
-	// var hotels []hotel.Hotel
-	// err := json.Unmarshal([]byte(obj), &hotels)
-	// if err != nil {
-	// 	log.Fatalf("Error parsing json, %v", err)
-	// }
-	// var names []string
-	// var cities []string
-	// var reviews []float32
-	// for _, item := range hotels {
-	// 	names = append(names, item.Name)
-	// 	cities = append(cities, item.City)
-	// 	reviews = append(reviews, item.Review)
-	// }
+	//fazer uso de um channel e executar as funçoes com Go
+	//utilizar wait para esperar o termino das goroutines e retornar com mensagem
+	chanIn := make(chan []arrow.Record)
+	var wg = &sync.WaitGroup{}
 
-	// parquet.BuildStruct(names, cities, reviews)
-	// parquet.ReadCSV()
-	// currentDir, err := os.Getwd()
+	// concurrency, err := strconv.Atoi(os.Getenv("CONCURRENCY_WORKERS"))
 	// if err != nil {
-	// 	fmt.Println("Erro ao obter o diretório de trabalho atual:", err)
-	// 	return
+	// 	log.Fatalf("error loading var: CONCURRENCY_WORKERS.")
 	// }
-	// fmt.Println("Diretório de trabalho atual:", currentDir)
+	concurrency := 1
 
-	// parquet.JsonFileToParquet("hotels_100000.json")
-	// parquet.CsvToParquet("hotels_10000.csv")
-	chan1 := parquet.CsvToArrowChannel("hotels_10000.csv")
-	fmt.Println(chan1)
+	for qtdProcessesCsv := 0; qtdProcessesCsv < concurrency; qtdProcessesCsv++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			parquet.CsvToArrowChannel("hotels_10000.csv", chanIn)
+		}()
+
+	}
+	fmt.Println(chanIn)
+	for qtdProcessesJson := 0; qtdProcessesJson < concurrency; qtdProcessesJson++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			parquet.JsonFileToArrowChannel("hotels_10000_copy.json", chanIn)
+		}()
+
+	}
+
+	go func() {
+		wg.Wait()
+		close(chanIn)
+	}()
+
+	for c := range chanIn {
+		parquet.ArrowToParquet(c)
+		fmt.Println(c)
+	}
 	// chan2 := parquet.CsvToArrowChannel("hotels_10000_copy.csv")
 	// chan3 := parquet.CsvToArrowChannel("hotels_10000_copy_2.csv")
 	// chan4 := parquet.CsvToArrowChannel("hotels_10000_copy_3.csv")
@@ -74,13 +58,10 @@ func main() {
 	// 		log.Println(err)
 	// 	}
 	// }
-	chan8, errChan := parquet.JsonFileToArrowChannel("hotels_10000_copy.json")
-	if errChan != nil {
-		for err := range errChan {
-			log.Println(err)
-		}
-	}
-	fmt.Println(chan8)
+
+	//fazer uso de um channel e executar as funçoes com Go
+	//utilizar wait para esperar o termino das goroutines e retornar com mensagem
+
 	// chan9, errChan := parquet.JsonFileToArrowChannel("hotels_10000_copy_2.json")
 	// if errChan != nil {
 	// 	for err := range errChan {
@@ -105,10 +86,10 @@ func main() {
 	// 		log.Println(err)
 	// 	}
 	// }
-	for c := range parquet.FanIn(chan1, chan8) {
-		parquet.ArrowToParquet(c)
-		// fmt.Println(c)
-	}
+
+	//fazer uso de um channel e executar as funçoes com Go
+
+	// a :=[]chan
 	// for c := range parquet.FanIn(chan1, chan2, chan3, chan4, chan5, chan6, chan7, chan8, chan9, chan10, chan11, chan12) {
 	// 	parquet.ArrowToParquet(c)
 	// 	fmt.Println(c)

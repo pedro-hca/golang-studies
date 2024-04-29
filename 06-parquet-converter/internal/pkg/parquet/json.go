@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
@@ -81,41 +82,36 @@ func JsonFileToParquet(filePath string) error {
 	return nil
 }
 
-func JsonFileToArrowChannel(filePath string) (<-chan []arrow.Record, <-chan error) {
+func JsonFileToArrowChannel(filePath string, out chan []arrow.Record) error {
 	var recordArray []arrow.Record
-	out := make(chan []arrow.Record)
-	errChan := make(chan error)
+	var Mutex = &sync.Mutex{}
 
-	go func() {
-		defer close(out)
-		defer close(errChan)
+	Mutex.Lock()
+	jsonFile, err := os.Open(utils.GetJsonFilePath() + filePath)
+	if err != nil {
+		return fmt.Errorf("error while opening .json file: %w", err)
+	}
+	defer jsonFile.Close()
 
-		jsonFile, err := os.Open(utils.GetJsonFilePath() + filePath)
-		if err != nil {
-			errChan <- fmt.Errorf("error while opening .json file: %w", err)
-		}
-		defer jsonFile.Close()
+	jsonBytes, err := io.ReadAll(jsonFile)
+	if err != nil {
+		return fmt.Errorf("error while reading .json file: %w", err)
+	}
+	Mutex.Unlock()
+	schemaRecord := arrow.NewSchema(schema.Fields, nil)
+	schemaStruct := arrow.StructOf(schema.Fields...)
 
-		jsonBytes, err := io.ReadAll(jsonFile)
-		if err != nil {
-			errChan <- fmt.Errorf("error while reading .json file: %w", err)
-		}
+	structBuilder := array.NewStructBuilder(memory.DefaultAllocator, schemaStruct)
+	defer structBuilder.Release() // Ensure the builder releases its resources
 
-		schemaRecord := arrow.NewSchema(schema.Fields, nil)
-		schemaStruct := arrow.StructOf(schema.Fields...)
+	structBuilder.UnmarshalJSON(jsonBytes)
+	structArray := structBuilder.NewStructArray()
+	defer structArray.Release() // Match retain with release
 
-		structBuilder := array.NewStructBuilder(memory.DefaultAllocator, schemaStruct)
-		defer structBuilder.Release() // Ensure the builder releases its resources
+	recordArray = append(recordArray, array.RecordFromStructArray(structArray, schemaRecord))
+	out <- append([]arrow.Record(nil), recordArray...)
 
-		structBuilder.UnmarshalJSON(jsonBytes)
-		structArray := structBuilder.NewStructArray()
-		defer structArray.Release() // Match retain with release
-
-		recordArray = append(recordArray, array.RecordFromStructArray(structArray, schemaRecord))
-		out <- recordArray
-	}()
-
-	return out, errChan
+	return nil
 }
 func JsonToParquet() {
 	jsonObj := `[
