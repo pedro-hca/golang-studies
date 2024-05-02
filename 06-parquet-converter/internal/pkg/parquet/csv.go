@@ -112,13 +112,15 @@ func CsvToArrowChannel(fileName string, out chan []arrow.Record) error {
 	rdr := csv.NewInferringReader(file, csv.WithChunk(-1),
 		// strings can be null, and these are the values
 		// to consider as "null"
-		csv.WithNullReader(true, "", "null", "[]"),
+		csv.WithNullReader(false, ""),
 		csv.WithHeader(true))
 
 	for rdr.Next() {
 		rec := rdr.Record()
 		structArray := array.RecordToStructArray(rec)
+		// schema := arrow.NewSchema(rec.Schema().Fields(), nil)
 		recordArr = append(recordArr, array.RecordFromStructArray(structArray, schema.GetRecordSchema()))
+
 		out <- append([]arrow.Record(nil), recordArr...)
 	}
 	Mutex.Unlock()

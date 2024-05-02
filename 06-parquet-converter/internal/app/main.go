@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/apache/arrow/go/v16/arrow"
@@ -24,19 +23,19 @@ func main() {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			parquet.CsvToArrowChannel("hotels_10000.csv", chanIn)
+			parquet.CsvToArrowChannel("hotels_data.csv", chanIn)
 		}()
 
 	}
-	fmt.Println(chanIn)
-	for qtdProcessesJson := 0; qtdProcessesJson < concurrency; qtdProcessesJson++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			parquet.JsonFileToArrowChannel("hotels_10000_copy.json", chanIn)
-		}()
+	// fmt.Println(chanIn)
+	// for qtdProcessesJson := 0; qtdProcessesJson < concurrency; qtdProcessesJson++ {
+	// 	wg.Add(1)
+	// 	go func() {
+	// 		defer wg.Done()
+	// 		parquet.JsonFileToArrowChannel("hotels_10000_copy.json", chanIn)
+	// 	}()
 
-	}
+	// }
 
 	go func() {
 		wg.Wait()
@@ -45,7 +44,7 @@ func main() {
 
 	for c := range chanIn {
 		parquet.ArrowToParquet(c)
-		fmt.Println(c)
+		// fmt.Println(c)
 	}
 	// chan2 := parquet.CsvToArrowChannel("hotels_10000_copy.csv")
 	// chan3 := parquet.CsvToArrowChannel("hotels_10000_copy_2.csv")
