@@ -1,0 +1,92 @@
+[
+    {
+        "id": 1,
+        "name": "Grand Plaza Hotel",
+        "city": "New York",
+        "review": 8.5,
+        "created_at": "2024-04-30",
+        "average_price": 85,
+        "is_active": 1
+    },
+    {
+        "id": 2,
+        "name": "Sunny Beach Resort",
+        "city": "Miami",
+        "review": 7.9,
+        "created_at": "2024-04-29",
+        "average_price": 79,
+        "is_active": 1
+    },
+    {
+        "id": 3,
+        "name": "Mountain View Lodge",
+        "city": "Denver",
+        "review": 9.2,
+        "created_at": "2024-04-28",
+        "average_price": 92,
+        "is_active": 1
+    },
+    {
+        "id": 4,
+        "name": "Luxury Oasis Resort",
+        "city": "Miami",
+        "review": 8.8,
+        "created_at": "2024-04-27",
+        "average_price": 88,
+        "is_active": 1
+    },
+    {
+        "id": 5,
+        "name": "Golden Sands Inn",
+        "city": "New York",
+        "review": 7.6,
+        "created_at": "2024-04-26",
+        "average_price": 76,
+        "is_active": 1
+    },
+    {
+        "id": 6,
+        "name": "Harbor Lights Hotel",
+        "city": "Los Angeles",
+        "review": 8.9,
+        "created_at": "2024-04-25",
+        "average_price": 89,
+        "is_active": 1
+    },
+    {
+        "id": 7,
+        "name": "Riverside Retreat",
+        "city": "Denver",
+        "review": 8.1,
+        "created_at": "2024-04-24",
+        "average_price": 81,
+        "is_active": 1
+    },
+    {
+        "id": 8,
+        "name": "Skyline Tower Hotel",
+        "city": "New York",
+        "review": 9.0,
+        "created_at": "2024-04-23",
+        "average_price": 90,
+        "is_active": 1
+    },
+    {
+        "id": 9,
+        "name": "Paradise Cove Resort",
+        "city": "Miami",
+        "review": 8.7,
+        "created_at": "2024-04-22",
+        "average_price": 87,
+        "is_active": 1
+    },
+    {
+        "id": 10,
+        "name": "Alpine View Hotel",
+        "city": "Denver",
+        "review": 8.3,
+        "created_at": "2024-04-21",
+        "average_price": 83,
+        "is_active": 1
+    }
+]

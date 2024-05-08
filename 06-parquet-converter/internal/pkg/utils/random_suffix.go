@@ -8,7 +8,7 @@ import (
 
 func NewRandomSuffix() (string, error) {
 	// Generate 8 random bytes
-	randomBytes := make([]byte, 8)
+	randomBytes := make([]byte, 2)
 	_, err := rand.Read(randomBytes)
 	if err != nil {
 		return "", fmt.Errorf("error while generating random suffix name: %w", err)

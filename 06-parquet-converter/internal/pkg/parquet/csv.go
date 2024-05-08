@@ -20,6 +20,41 @@ import (
 	"parquet.example/internal/pkg/utils"
 )
 
+func CsvToArrowChannel(fileName string, out chan []arrow.Record) error {
+	var recordArr []arrow.Record
+	Mutex := &sync.Mutex{}
+
+	Mutex.Lock()
+	file, err := os.Open(utils.GetCsvFilePath() + fileName)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	// use this one if you dont want to infer schema
+	// rdr := csv.NewReader(file, schema.GetRecordSchema())
+	// infer the types and schema from the header line
+	// and first line of data
+	rdr := csv.NewInferringReader(file, csv.WithChunk(-1),
+		// strings can be null, and these are the values
+		// to consider as "null"
+		csv.WithNullReader(false, ""),
+		csv.WithHeader(true))
+
+	for rdr.Next() {
+		rec := rdr.Record()
+		structArray := array.RecordToStructArray(rec)
+		// schema := arrow.NewSchema(rec.Schema().Fields(), nil)
+		recordArr = append(recordArr, array.RecordFromStructArray(structArray, schema.GetRecordSchema()))
+
+		out <- append([]arrow.Record(nil), recordArr...)
+	}
+	Mutex.Unlock()
+
+	if rdr.Err() != nil {
+		panic(rdr.Err())
+	}
+	return nil
+}
 func CsvToParquet(filePath string) {
 	var recordArr []arrow.Record
 	ch := make(chan []arrow.Record, 20)
@@ -97,41 +132,6 @@ func CsvToParquet(filePath string) {
 
 	}
 }
-func CsvToArrowChannel(fileName string, out chan []arrow.Record) error {
-	var recordArr []arrow.Record
-	Mutex := &sync.Mutex{}
-
-	Mutex.Lock()
-	file, err := os.Open(utils.GetCsvFilePath() + fileName)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	// infer the types and schema from the header line
-	// and first line of data
-	rdr := csv.NewInferringReader(file, csv.WithChunk(-1),
-		// strings can be null, and these are the values
-		// to consider as "null"
-		csv.WithNullReader(false, ""),
-		csv.WithHeader(true))
-
-	for rdr.Next() {
-		rec := rdr.Record()
-		structArray := array.RecordToStructArray(rec)
-		// schema := arrow.NewSchema(rec.Schema().Fields(), nil)
-		recordArr = append(recordArr, array.RecordFromStructArray(structArray, schema.GetRecordSchema()))
-
-		out <- append([]arrow.Record(nil), recordArr...)
-	}
-	Mutex.Unlock()
-
-	if rdr.Err() != nil {
-		panic(rdr.Err())
-	}
-	return nil
-
-}
-
 func CsvFileToParquet() {
 
 	ch := make(chan arrow.Record, 20)

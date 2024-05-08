@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/parquet-go/parquet-go"
+	parquetgo "github.com/parquet-go/parquet-go"
 	"parquet.example/internal/pkg/hotel"
 )
 
 func StructToParquet(fileName string, hotels []hotel.Hotel) error {
 	file := fmt.Sprintf("%s.parquet", fileName)
 
-	err := parquet.WriteFile(file, hotels)
+	err := parquetgo.WriteFile(file, hotels)
 	if err != nil {
 		return fmt.Errorf("error writing file:, %v", err)
 	}
@@ -26,7 +26,7 @@ func GenericToParquet(fileName string, hotels []hotel.Hotel) error {
 		return fmt.Errorf("error creating file:, %v", err)
 	}
 
-	writer := parquet.NewGenericWriter[hotel.Hotel](fileHotel)
+	writer := parquetgo.NewGenericWriter[hotel.Hotel](fileHotel)
 	// escrever por cima do arquivo
 
 	_, err = writer.Write(hotels)
@@ -41,7 +41,3 @@ func GenericToParquet(fileName string, hotels []hotel.Hotel) error {
 	return nil
 
 }
-
-// func OverWriteParquet(file os.File, hotels []hotel.Hotel) error {
-
-// }

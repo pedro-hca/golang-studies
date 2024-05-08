@@ -6,7 +6,6 @@ import (
 
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/parquet"
-	"github.com/apache/arrow/go/v16/parquet/compress"
 	"github.com/apache/arrow/go/v16/parquet/pqarrow"
 	"parquet.example/internal/pkg/schema"
 	"parquet.example/internal/pkg/utils"
@@ -21,15 +20,7 @@ func ArrowToParquet(records []arrow.Record) {
 	}
 
 	wr, err := pqarrow.NewFileWriter(schema.GetRecordSchema(), pqout,
-		parquet.NewWriterProperties(
-			parquet.WithCompression(compress.Codecs.Snappy),
-			parquet.WithCompressionFor("review", compress.Codecs.Zstd),
-			parquet.WithDictionaryDefault(false),
-			parquet.WithDictionaryFor("city", true),
-			parquet.WithEncodingFor("id", parquet.Encodings.DeltaBinaryPacked),
-			parquet.WithDataPageVersion(parquet.DataPageV2),
-			parquet.WithVersion(parquet.V2_LATEST),
-		), pqarrow.DefaultWriterProps())
+		parquet.NewWriterProperties(), pqarrow.DefaultWriterProps())
 	if err != nil {
 		panic(err)
 	}

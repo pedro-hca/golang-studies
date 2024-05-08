@@ -1,5 +1,54 @@
 package utils
 
+// func GetCsvFilePath() string {
+// 	// Obtém o diretório de trabalho atual
+// 	cwd, err := os.Getwd()
+// 	if err != nil {
+// 		fmt.Println("Erro ao obter o diretório de trabalho atual:", err)
+// 	}
+// 	// Volta uma pasta e entra em /internal/pkg/data/test/
+// 	newPath := filepath.Join(filepath.Dir(cwd), "/pkg/data/csv/")
+
+// 	fmt.Println(newPath)
+// 	return newPath
+// }
+// func GetJsonFilePath() string {
+// 	// Obtém o diretório de trabalho atual
+// 	cwd, err := os.Getwd()
+// 	if err != nil {
+// 		fmt.Println("Erro ao obter o diretório de trabalho atual:", err)
+// 	}
+// 	// Volta uma pasta e entra em /internal/pkg/data/test/
+// 	newPath := filepath.Join(filepath.Dir(cwd), "/pkg/data/json/")
+
+// 	fmt.Println(newPath)
+// 	return newPath
+// }
+// func GetParquetFilePath() string {
+// 	// Obtém o diretório de trabalho atual
+// 	cwd, err := os.Getwd()
+// 	if err != nil {
+// 		fmt.Println("Erro ao obter o diretório de trabalho atual:", err)
+// 	}
+// 	// Volta uma pasta e entra em /internal/pkg/data/test/
+// 	newPath := filepath.Join(filepath.Dir(cwd), "/pkg/data/parquet/")
+
+// 	fmt.Println(newPath)
+// 	return newPath
+// }
+// func GetTestFilePath() string {
+// 	// Obtém o diretório de trabalho atual
+// 	cwd, err := os.Getwd()
+// 	if err != nil {
+// 		fmt.Println("Erro ao obter o diretório de trabalho atual:", err)
+// 	}
+// 	// Volta uma pasta e entra em /internal/pkg/data/test/
+// 	newPath := filepath.Join(filepath.Dir(cwd), "/pkg/data/test/")
+
+// 	fmt.Println(newPath)
+// 	return newPath
+// }
+
 func GetCsvFilePath() string {
 	// absPath, err := filepath.Abs("../../.env")
 	// if err != nil {
