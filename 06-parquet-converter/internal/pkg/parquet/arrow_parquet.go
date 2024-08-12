@@ -121,7 +121,7 @@ func ReadParquetFile() {
 
 }
 
-func HotelBookingStructToJsonAndArrow(flatHotelBookingData []map[string]interface{}, schemaFields []arrow.Field) []arrow.Record {
+func HotelBookingStructToJsonAndArrow(flatHotelBookingData hotel.Hotel, schemaFields []arrow.Field) []arrow.Record {
 	var recordArray []arrow.Record
 
 	schemaRecord := arrow.NewSchema(schemaFields, nil)
