@@ -8,7 +8,8 @@ import (
 	"parquet.example/internal/pkg/hotel"
 )
 
-func StructToParquet(fileName string, hotels []hotel.Hotel) error {
+func StructToParquet(fileName string, hotels []hotel.Booking) error {
+
 	file := fmt.Sprintf("%s.parquet", fileName)
 
 	err := parquetgo.WriteFile(file, hotels)

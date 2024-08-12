@@ -2,6 +2,7 @@ package parquet
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"sync"
@@ -11,6 +12,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/apache/arrow/go/v16/parquet"
 	"github.com/apache/arrow/go/v16/parquet/pqarrow"
+	"parquet.example/internal/pkg/hotel"
 	"parquet.example/internal/pkg/utils"
 )
 
@@ -117,4 +119,84 @@ func ReadParquetFile() {
 	// 	fmt.Println("------")
 	// }
 
+}
+
+func HotelBookingStructToJsonAndArrow(flatHotelBookingData []map[string]interface{}, schemaFields []arrow.Field) []arrow.Record {
+	var recordArray []arrow.Record
+
+	schemaRecord := arrow.NewSchema(schemaFields, nil)
+	schemaStruct := arrow.StructOf(schemaFields...)
+
+	bldr := array.NewStructBuilder(memory.DefaultAllocator, schemaStruct)
+	defer bldr.Release()
+
+	flatByte, _ := json.Marshal(flatHotelBookingData)
+	jsonArray := "[" + string(flatByte) + "]"
+	err := bldr.UnmarshalJSON([]byte(jsonArray))
+	fmt.Println(err)
+
+	structArray := bldr.NewStructArray()
+	defer structArray.Release()
+	fmt.Println(structArray)
+
+	recordArray = append(recordArray, array.RecordFromStructArray(structArray, schemaRecord))
+	fmt.Println(recordArray)
+	return recordArray
+}
+func HotelBookingStructToArrow(flatHotelBookingData hotel.Hotel, schemaFields []arrow.Field) []arrow.Record {
+	var recordArray []arrow.Record
+
+	schemaRecord := arrow.NewSchema(schemaFields, nil)
+	schemaStruct := arrow.StructOf(schemaFields...)
+
+	bldr := array.NewStructBuilder(memory.DefaultAllocator, schemaStruct)
+	defer bldr.Release()
+
+	travelerIDBldr := bldr.FieldBuilder(0)
+	idBldr := bldr.FieldBuilder(1)
+	bookingEndTimeLocalBldr := bldr.FieldBuilder(2)
+
+	bldr.Append(true)
+	travelerIDBldr.(*array.StringBuilder).Append(flatHotelBookingData.Name)
+	idBldr.(*array.StringBuilder).Append(flatHotelBookingData.City)
+
+	// Verifica e converte o Review para float64 se necessário
+	// reviewValue := flatHotelBookingData.Review
+	// if reviewValue == float64(int(reviewValue)) { // Verificação redundante
+	// 	reviewValue = float64(int(reviewValue))
+	// }
+	// reviewValue = reviewValue + 0.1
+	bookingEndTimeLocalBldr.(*array.Float64Builder).Append(flatHotelBookingData.Review)
+
+	// bookingEndTimeLocalBldr.(*array.Float64Builder).Append(flatHotelBookingData.Review)
+
+	structArray := bldr.NewStructArray()
+	defer structArray.Release()
+	fmt.Println(structArray)
+
+	recordArray = append(recordArray, array.RecordFromStructArray(structArray, schemaRecord))
+	fmt.Println(recordArray)
+	return recordArray
+}
+
+func ArrowToParquetHotel(records []arrow.Record, schemaFields []arrow.Field) {
+	pqout, err := os.Create("FlatHotelBookingData.parquet")
+	if err != nil {
+		panic(err)
+	}
+	defer pqout.Close()
+	schemaRecord := arrow.NewSchema(schemaFields, nil)
+	wr, err := pqarrow.NewFileWriter(schemaRecord, pqout,
+		parquet.NewWriterProperties(), pqarrow.DefaultWriterProps())
+	if err != nil {
+		panic(err)
+	}
+	defer wr.Close()
+
+	for _, rec := range records {
+		fmt.Println(rec)
+		wr.Write(rec)
+		rec.Release()
+
+	}
 }

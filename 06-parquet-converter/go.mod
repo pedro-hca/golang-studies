@@ -2,10 +2,13 @@ module parquet.example
 
 go 1.22.0
 
+require github.com/xitongsys/parquet-go-source v0.0.0-20240122235623-d6294584ab18
+
 require (
 	github.com/JohnCGriffin/overflow v0.0.0-20211019200055-46fa312c352c // indirect
 	github.com/aclements/go-moremath v0.0.0-20210112150236-f10218a38794 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
+	github.com/apache/arrow/go/arrow v0.0.0-20200730104253-651201b0f516 // indirect
 	github.com/apache/arrow/go/v16 v16.0.0-20240412181132-ec2d7cbfb426 // indirect
 	github.com/apache/thrift v0.19.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
@@ -24,6 +27,7 @@ require (
 	github.com/parquet-go/parquet-go v0.20.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.21 // indirect
 	github.com/segmentio/encoding v0.3.6 // indirect
+	github.com/xitongsys/parquet-go v1.6.2 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
 	golang.org/x/mod v0.17.0 // indirect

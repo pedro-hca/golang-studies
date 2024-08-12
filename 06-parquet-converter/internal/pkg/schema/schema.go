@@ -13,7 +13,7 @@ func GetStructSchema() *arrow.StructType {
 }
 
 var Fields []arrow.Field = []arrow.Field{
-	{Name: "id", Type: arrow.PrimitiveTypes.Int64},
+	// {Name: "id", Type: arrow.PrimitiveTypes.Int64},
 	{Name: "name", Type: arrow.BinaryTypes.String},
 	{Name: "city", Type: arrow.BinaryTypes.String},
 	{Name: "review", Type: arrow.PrimitiveTypes.Float64},
